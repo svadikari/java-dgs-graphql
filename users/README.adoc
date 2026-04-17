@@ -1,0 +1,178 @@
+= Users Service
+
+GraphQL service for managing users. The service persists user records in PostgreSQL and exposes query and mutation operations through the Netflix DGS framework.
+
+== Overview
+
+This module is a Spring Boot application built with Netflix DGS.
+
+Current behavior from the codebase:
+
+* Stores users in a `users` table through Spring Data JPA.
+* Exposes GraphQL query operations for listing all users and fetching a single user by id.
+* Exposes a GraphQL mutation for creating a user.
+* Runs locally on port `4002`.
+* Enables GraphiQL for local development.
+
+The schema also declares `User.books`, but this module does not currently include a data fetcher or mapper logic that resolves that field.
+
+== Tech Stack
+
+* Java 25
+* Spring Boot 4.0.5
+* Netflix DGS 11.0.0
+* Spring Web MVC
+* Spring Data JPA
+* PostgreSQL
+* MapStruct
+* Lombok
+* Gradle Kotlin DSL
+
+== Project Structure
+
+[source,text]
+----
+src/main/java/com/shyam/users
+├── UsersApplication.java
+├── data/fetchers/UsersDataFetcher.java
+├── entities/UserEntity.java
+├── mappers/UsersMapper.java
+└── repository/UserRepository.java
+
+src/main/resources
+├── application.yml
+└── schema/schema.graphql
+----
+
+== GraphQL Schema
+
+The schema is defined in `src/main/resources/schema/schema.graphql`.
+
+[source,graphql]
+----
+type Query {
+  users: [User]
+  user(id: ID!): User
+}
+
+type Mutation {
+  createUser(user: CreateUser): User
+}
+----
+
+`User` contains:
+
+* `id`
+* `name`
+* `books`
+
+Only `id` and `name` are populated by the current mapper and fetcher implementation.
+
+== Configuration
+
+Main configuration lives in `src/main/resources/application.yml`.
+
+Default local values:
+
+* Server port: `4002`
+* PostgreSQL JDBC URL: `jdbc:postgresql://localhost:5432/postgres`
+* Database username: `postgres`
+* Database password: `postgres`
+* Hibernate DDL mode: `update`
+* GraphiQL: enabled
+
+== Prerequisites
+
+Before starting this service, make sure these dependencies are available:
+
+* Java 25
+* A running PostgreSQL instance on port `5432`
+
+The repository includes a shared `compose.yaml` one level above this module with a PostgreSQL container definition.
+
+From the repository root:
+
+[source,bash]
+----
+docker compose up -d postgres
+----
+
+From this module directory:
+
+[source,bash]
+----
+docker compose -f ../compose.yaml up -d postgres
+----
+
+== Running Locally
+
+From this directory:
+
+[source,bash]
+----
+./gradlew bootRun
+----
+
+The application will start on:
+
+`http://localhost:4002`
+
+The default GraphQL endpoint is:
+
+`http://localhost:4002/graphql`
+
+GraphiQL should be available at:
+
+`http://localhost:4002/graphiql`
+
+== Example Operations
+
+Query all users:
+
+[source,graphql]
+----
+query {
+  users {
+    id
+    name
+  }
+}
+----
+
+Query a single user:
+
+[source,graphql]
+----
+query {
+  user(id: "1") {
+    id
+    name
+  }
+}
+----
+
+Create a user:
+
+[source,graphql]
+----
+mutation {
+  createUser(user: { name: "Ada Lovelace" }) {
+    id
+    name
+  }
+}
+----
+
+== Build
+
+To compile and run the module checks:
+
+[source,bash]
+----
+./gradlew test
+----
+
+== Notes
+
+* This module currently does not contain tests under `src/test`.
+* The Gradle `generateJava` task references an extra schema path under `users/books/...`; current builds still succeed, but Gradle logs that the schema location does not exist.

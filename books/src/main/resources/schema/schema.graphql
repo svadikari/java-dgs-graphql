@@ -8,18 +8,26 @@ type Mutation {
 
 input CreateBook {
     title: String!
-    authorId: Int!
+    authorIds: String
 }
 
 type Book {
     id: ID!
     title: String!
-    authorId: Int
-    author: Author
+    authorIds: String
+    authors: [Author]
+    reviews: [Review]
 }
 
 type Author {
     id: ID!
     name: String!
     books: [Book]
+}
+
+type Review {
+    id: ID!
+    comment: String!
+    rating: Int
+    reviewer: String!
 }

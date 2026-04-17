@@ -1,0 +1,178 @@
+= Books Service
+
+GraphQL service for managing books. The service persists book records in PostgreSQL and enriches the GraphQL response with author and review data fetched from external GraphQL services.
+
+== Overview
+
+This module is a Spring Boot application built with the Netflix DGS framework.
+
+Current behavior from the codebase:
+
+* Stores books in a `books` table through Spring Data JPA.
+* Exposes GraphQL query and mutation operations for listing and creating books.
+* Resolves `Book.authors` by calling a user GraphQL service at `http://localhost:4002/graphql`.
+* Resolves `Book.reviews` by calling a reviews GraphQL service at `http://localhost:4003/graphql`.
+* Runs locally on port `4001`.
+
+== Tech Stack
+
+* Java 25
+* Spring Boot 4.0.5
+* Netflix DGS 11.0.0
+* Spring Web MVC
+* Spring Data JPA
+* PostgreSQL
+* MapStruct
+* Lombok
+* Gradle Kotlin DSL
+
+== Project Structure
+
+[source,text]
+----
+src/main/java/com/shyam/books
+├── BookStoreApplication.java
+├── config/WebClientConfig.java
+├── data/fetchers/BooksDataFetcher.java
+├── entities/BookEntity.java
+├── mappers/BooksMapper.java
+├── repository/BookRepository.java
+└── dto/UserDto.java
+
+src/main/resources
+├── application.yml
+└── schema/schema.graphql
+----
+
+== GraphQL Schema
+
+The schema is defined in `src/main/resources/schema/schema.graphql`.
+
+[source,graphql]
+----
+type Query {
+  books: [Book]
+}
+
+type Mutation {
+  createBook(book: CreateBook): Book
+}
+----
+
+`Book` includes persisted fields plus two resolved fields:
+
+* `authors`: derived from the comma-separated `authorIds` value by calling the users service.
+* `reviews`: fetched from the reviews service using the book id.
+
+== Configuration
+
+Main configuration lives in `src/main/resources/application.yml`.
+
+Default local values:
+
+* Server port: `4001`
+* PostgreSQL JDBC URL: `jdbc:postgresql://localhost:5432/postgres`
+* Database username: `postgres`
+* Database password: `postgres`
+* Users API base URL: `http://localhost:4002/graphql`
+* Reviews API base URL: `http://localhost:4003/graphql`
+* GraphiQL: enabled
+
+== Prerequisites
+
+Before starting this service, make sure these dependencies are available:
+
+* Java 25
+* A running PostgreSQL instance on port `5432`
+* A users GraphQL service on port `4002`
+* A reviews GraphQL service on port `4003`
+
+The repository includes a shared `compose.yaml` one level above this module with a PostgreSQL container definition.
+
+From the repository root:
+
+[source,bash]
+----
+docker compose up -d postgres
+----
+
+From this module directory:
+
+[source,bash]
+----
+docker compose -f ../compose.yaml up -d postgres
+----
+
+== Running Locally
+
+From this directory:
+
+[source,bash]
+----
+./gradlew bootRun
+----
+
+The application will start on:
+
+`http://localhost:4001`
+
+GraphiQL should be available at:
+
+`http://localhost:4001/graphiql`
+
+== Example Operations
+
+Query books:
+
+[source,graphql]
+----
+query {
+  books {
+    id
+    title
+    authorIds
+    authors {
+      name
+    }
+    reviews {
+      id
+      comment
+      rating
+      reviewer
+    }
+  }
+}
+----
+
+Create a book:
+
+[source,graphql]
+----
+mutation {
+  createBook(
+    book: {
+      title: "Domain-Driven Design"
+      authorIds: "1,2"
+    }
+  ) {
+    id
+    title
+    authorIds
+  }
+}
+----
+
+== Build
+
+To build the module:
+
+[source,bash]
+----
+./gradlew build
+----
+
+== Notes
+
+* `BookEntity.authorIds` is stored as a comma-separated string.
+* `createBook` persists only the local book data. Author and review details are resolved later when querying.
+* This module currently does not contain tests under `src/test`.

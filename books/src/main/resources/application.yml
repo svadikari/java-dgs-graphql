@@ -9,7 +9,7 @@ spring:
         enabled: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/books
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgres
   jpa:
@@ -25,3 +25,5 @@ server:
 
 users-api:
   base_url: http://localhost:4002/graphql
+reviews-api:
+  base_url: http://localhost:4003/graphql

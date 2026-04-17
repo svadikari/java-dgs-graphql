@@ -1,0 +1,109 @@
+= Reviews Apollo GraphQL API
+
+Simple Apollo Server project in Node.js for managing reviews in PostgreSQL for any external entity. Each review points at one opaque `entityId`, such as `book:book-1` or `product:product-1`.
+
+== Run
+
+From the repo root, start PostgreSQL:
+
+[source,bash]
+----
+docker compose up -d postgres
+----
+
+Inside the `reviews` project, install dependencies and start the API:
+
+[source,bash]
+----
+npm install
+npm run dev
+----
+
+The server starts on `http://localhost:4003/`.
+
+The app automatically loads `.env.local` on startup. The current local configuration is:
+
+[source,text]
+----
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
+PGUSER=postgres
+PGPASSWORD=postgres
+----
+
+You can also configure PostgreSQL with `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE` instead of `DATABASE_URL`. If `DATABASE_URL` is in JDBC form like `jdbc:postgresql://...`, the app normalizes it before creating the `pg` connection.
+
+== Startup Behavior
+
+On boot, the service:
+
+* creates the `reviews` table if it does not exist
+* runs a small migration path for older schemas
+* creates the `reviews_entity_id_idx` index if it does not exist
+
+Legacy columns such as `book_id`, `entity_type`, and older `entityId`/`entity_id` shapes are folded into the current `entity_id` storage column during startup, then dropped.
+
+== PostgreSQL Table
+
+[source,sql]
+----
+CREATE TABLE reviews (
+  id TEXT PRIMARY KEY,
+  entity_id TEXT NOT NULL,
+  reviewer TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+----
+
+== Example Query
+
+[source,graphql]
+----
+query GetReviews {
+  reviews(entityId: "product:product-1") {
+    id
+    entityId
+    reviewer
+    rating
+    comment
+    createdAt
+  }
+}
+----
+
+== Example Mutation
+
+[source,graphql]
+----
+mutation AddReview {
+  addReview(
+    input: {
+      entityId: "product:product-1"
+      reviewer: "Mia"
+      rating: 5
+      comment: "Useful reference for clean design."
+    }
+  ) {
+    id
+    entityId
+    reviewer
+    rating
+    comment
+    createdAt
+  }
+}
+----
+
+== Supported Operations
+
+* Query reviews, optionally filtered by `entityId`
+* Add reviews for any external entity reference
+* Update review content or rating
+* Delete reviews
+
+== Troubleshooting
+
+* Run `docker compose up -d postgres` from the repo root, not from the `reviews` directory.
+* If startup says PostgreSQL is unavailable on `127.0.0.1:5432`, check that the container is running and that port `5432` is free on your machine.
+* If startup fails with a schema initialization error, the message now points at the migration step rather than reporting it as a connection failure.

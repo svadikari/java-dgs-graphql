@@ -14,9 +14,16 @@ public class WebClientConfig {
     @Value("${users-api.base_url}")
     private String usersApiBaseUrl;
 
+    @Value("${reviews-api.base_url}")
+    private String reviewsApiBaseUrl;
+
     @Bean(name = "userWebClientGraphQLClient")
     public RestClientGraphQLClient userWebClientGraphQLClient() {
-        log.info("Creating RestClientGraphQLClient for {}", usersApiBaseUrl);
         return new RestClientGraphQLClient(RestClient.builder().baseUrl(usersApiBaseUrl).build());
+    }
+
+    @Bean(name = "reviewsWebClientGraphQLClient")
+    public RestClientGraphQLClient reviewsWebClientGraphQLClient() {
+        return new RestClientGraphQLClient(RestClient.builder().baseUrl(reviewsApiBaseUrl).build());
     }
 }
