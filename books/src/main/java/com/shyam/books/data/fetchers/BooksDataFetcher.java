@@ -4,6 +4,7 @@ import com.jayway.jsonpath.TypeRef;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsData;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
+import com.netflix.graphql.dgs.DgsEntityFetcher;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
@@ -54,6 +55,18 @@ query reviewsByEntityId($entityId: ID!){
   @DgsQuery(field = DgsConstants.QUERY.Books)
   public Iterable<Book> getBooks() {
     return booksMapper.toBookDtos(bookRepository.findAll());
+  }
+
+  @DgsEntityFetcher(name = DgsConstants.BOOK.TYPE_NAME)
+  public Book book(Map<String, Object> values) {
+    Object rawId = values.get("id");
+    if (rawId == null) {
+      return null;
+    }
+
+    return bookRepository.findById(Long.valueOf(rawId.toString()))
+        .map(booksMapper::toBookDto)
+        .orElse(null);
   }
 
   @DgsData(parentType = DgsConstants.BOOK.TYPE_NAME, field = DgsConstants.BOOK.Authors)

@@ -17,6 +17,6 @@ type User {
     books: [Book]
 }
 
-type Book{
+type Book @key(fields: "id") {
     id: ID!
 }
