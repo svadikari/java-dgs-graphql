@@ -1,0 +1,25 @@
+
+spring:
+  application:
+    name: java-dgs-graphql
+  jmx:
+    enabled: false
+  data:
+    jpa:
+      repositories:
+        enabled: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/books
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+  graphql:
+    schema:
+      additional-files: schema
+    graphiql:
+      enabled: true
+server:
+  port: 4002
