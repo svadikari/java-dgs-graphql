@@ -1,13 +1,13 @@
-package com.shyam.dgs.graphql.users;
+package com.shyam.books;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class BookStoreApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(BookStoreApplication.class, args);
 	}
 
 }

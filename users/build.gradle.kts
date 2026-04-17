@@ -5,18 +5,26 @@ plugins {
     id("com.netflix.dgs.codegen") version "8.3.0"
 }
 
-
 group = "com.shyam.users"
 version = "0.0.1-SNAPSHOT"
 var mapStructVersion = "1.6.3"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
+extra["netflixDgsVersion"] = "11.0.0"
+
 dependencies {
 
     compileOnly("org.projectlombok:lombok")
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -36,6 +44,17 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:${property("netflixDgsVersion")}")
+    }
+}
+
+tasks.generateJava {
+    schemaPaths.add("${projectDir}/books/src/main/resources/schema")
+    packageName = "com.shyam.users.dto"
+    generateClient = true
+}
 
 tasks.withType<Test> {
     useJUnitPlatform()

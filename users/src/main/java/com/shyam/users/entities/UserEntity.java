@@ -1,4 +1,4 @@
-package com.shyam.dgs.graphql.users.entities;
+package com.shyam.users.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,18 +10,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "books")
-public class BookEntity {
+@Table(name = "users")
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
-    private Long authorId;
+    private String name;
 }

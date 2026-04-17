@@ -1,8 +1,8 @@
-package com.shyam.dgs.graphql.users.mappers;
+package com.shyam.books.mappers;
 
-import com.shyam.dgs.graphql.codegen.types.Book;
-import com.shyam.dgs.graphql.codegen.types.CreateBook;
-import com.shyam.dgs.graphql.users.entities.BookEntity;
+import com.shyam.books.entities.BookEntity;
+import com.shyam.books.dto.types.Book;
+import com.shyam.books.dto.types.CreateBook;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;

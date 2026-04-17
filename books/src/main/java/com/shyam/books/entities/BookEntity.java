@@ -1,4 +1,4 @@
-package com.shyam.dgs.graphql.books.entities;
+package com.shyam.books.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,8 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
 
 @Data
 @AllArgsConstructor

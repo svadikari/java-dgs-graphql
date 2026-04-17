@@ -14,7 +14,8 @@ input CreateBook {
 type Book {
     id: ID!
     title: String!
-    authors: [Author]
+    authorId: Int
+    author: Author
 }
 
 type Author {
